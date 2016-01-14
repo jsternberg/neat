@@ -1,5 +1,7 @@
 package neat
 
+import "fmt"
+
 // ModuleFactory will create a module from the arguments passed into this function.
 // If the arguments were wrong or incomplete for some reason, an error will be
 // returned to indicate that the Module could not be instantiated.
@@ -26,6 +28,16 @@ type Module interface {
 // name.
 type ModuleRegistry map[string]ModuleFactory
 
+// Create creates a new module by name. This is a convenience method for calling
+// Lookup and then New. If the lookup doesn't succeed, this returns an error.
+func (r *ModuleRegistry) Create(name string, args ...interface{}) (Module, error) {
+	factory := r.Lookup(name)
+	if factory == nil {
+		return nil, fmt.Errorf("module %s not found", name)
+	}
+	return factory.New(args...)
+}
+
 // Register associates name with the passed in factory for future retrieval.
 func (r *ModuleRegistry) Register(name string, factory ModuleFactory) {
 	(*r)[name] = factory
@@ -38,8 +50,23 @@ func (r *ModuleRegistry) Lookup(name string) ModuleFactory {
 	return factory
 }
 
+func unimplemented(name string) ModuleFunc {
+	return ModuleFunc(func(args ...interface{}) (Module, error) {
+		return nil, fmt.Errorf("%s unimplemented", name)
+	})
+}
+
 // DefaultRegistry is a global default registry for convenience.
-var DefaultRegistry = &ModuleRegistry{}
+var DefaultRegistry = &ModuleRegistry{
+	"file":     unimplemented("file"),
+	"template": unimplemented("template"),
+	"service":  unimplemented("service"),
+}
+
+// CreateModule calls Create on the DefaultRegistry.
+func CreateModule(name string, args ...interface{}) (Module, error) {
+	return DefaultRegistry.Create(name, args...)
+}
 
 // RegisterModule calls Register on the DefaultRegistry.
 func RegisterModule(name string, factory ModuleFactory) {

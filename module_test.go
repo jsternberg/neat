@@ -16,6 +16,30 @@ type Mock struct{}
 
 func (*Mock) Execute() error { return nil }
 
+func TestModuleFactory_Create(t *testing.T) {
+	registry := &neat.ModuleRegistry{}
+	registry.Register("mock", &MockFactory{})
+
+	m, err := registry.Create("mock")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if _, ok := m.(*Mock); !ok {
+		t.Fatalf("expected type *Mock, got %T", m)
+	}
+}
+
+func TestModuleFactory_Create_Missing(t *testing.T) {
+	registry := &neat.ModuleRegistry{}
+	_, err := registry.Create("mock")
+	if err == nil {
+		t.Fatal("expected an error, got nil")
+	} else if err.Error() != "module mock not found" {
+		t.Fatalf("expected 'module mock not found' error message, got %s", err)
+	}
+}
+
 func TestModuleFactory_Lookup(t *testing.T) {
 	registry := &neat.ModuleRegistry{}
 	registry.Register("mock", &MockFactory{})
