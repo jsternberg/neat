@@ -9,6 +9,13 @@ type ModuleFactory interface {
 	New(args ...interface{}) (Module, error)
 }
 
+// ModuleFunc is a function that creates a new module.
+type ModuleFunc func(args ...interface{}) (Module, error)
+
+func (f ModuleFunc) New(args ...interface{}) (Module, error) {
+	return f(args...)
+}
+
 // Module encapsulates a single task or unit of behavior. It is the building
 // block of the rest of the system.
 type Module interface {

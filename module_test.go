@@ -42,3 +42,18 @@ func TestModuleFactory_Lookup_Missing(t *testing.T) {
 		t.Fatalf("expected to be unable to find mock factory, got %T", mf)
 	}
 }
+
+func TestModuleFactory_ModuleFunc(t *testing.T) {
+	registry := &neat.ModuleRegistry{}
+	registry.Register("mock", neat.ModuleFunc(
+		func(args ...interface{}) (neat.Module, error) {
+			return &Mock{}, nil
+		},
+	))
+
+	mf := registry.Lookup("mock")
+	_, err := mf.New()
+	if err != nil {
+		t.Fatalf("unable to lookup mock module")
+	}
+}
