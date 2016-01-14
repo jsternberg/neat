@@ -38,6 +38,15 @@ func (r *ModuleRegistry) Create(name string, args ...interface{}) (Module, error
 	return factory.New(args...)
 }
 
+// MustCreate creates a new module and panics if an error occurs.
+func (r *ModuleRegistry) MustCreate(name string, args ...interface{}) Module {
+	m, err := r.Create(name, args...)
+	if err != nil {
+		panic(err)
+	}
+	return m
+}
+
 // Register associates name with the passed in factory for future retrieval.
 func (r *ModuleRegistry) Register(name string, factory ModuleFactory) {
 	(*r)[name] = factory
@@ -68,6 +77,11 @@ var DefaultRegistry = &ModuleRegistry{
 // CreateModule calls Create on the DefaultRegistry.
 func CreateModule(name string, args ...interface{}) (Module, error) {
 	return DefaultRegistry.Create(name, args...)
+}
+
+// MustCreateModule calls MustCreate on the DefaultRegistry.
+func MustCreateModule(name string, args ...interface{}) Module {
+	return DefaultRegistry.MustCreate(name, args...)
 }
 
 // RegisterModule calls Register on the DefaultRegistry.
