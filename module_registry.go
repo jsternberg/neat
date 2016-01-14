@@ -37,12 +37,6 @@ func (r *ModuleRegistry) Lookup(name string) ModuleFactory {
 	return factory
 }
 
-func unimplemented(name string) ModuleFunc {
-	return ModuleFunc(func(args ...interface{}) (Module, error) {
-		return nil, fmt.Errorf("%s unimplemented", name)
-	})
-}
-
 // DefaultRegistry is a global default registry for convenience.
 var DefaultRegistry = &ModuleRegistry{
 	"execute": ModuleFunc(Execute),
