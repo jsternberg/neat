@@ -50,6 +50,43 @@ func TestModuleFunc(t *testing.T) {
 	}
 }
 
+func TestModuleE_Ok(t *testing.T) {
+	registry := &neat.ModuleRegistry{}
+	registry.Register("mock", &MockFactory{})
+
+	m := neat.ModuleE{Module: registry.MustCreate("mock")}
+	result, status, err := m.Ok("module succeeded")
+	actual, ok := result.(string)
+	if !ok || actual != "module succeeded" {
+		t.Errorf("expected result to be 'module succeded', got '%v'", result)
+	}
+	if status != neat.ModuleOk {
+		t.Errorf("expected status to be %s, got %s", neat.ModuleOk, status)
+	}
+	if err != nil {
+		t.Error(err)
+	}
+}
+
+func TestModuleE_Changed(t *testing.T) {
+	registry := &neat.ModuleRegistry{}
+	registry.Register("mock", &MockFactory{})
+
+	m := neat.ModuleE{Module: registry.MustCreate("mock")}
+	m.Changed = true
+	result, status, err := m.Ok("module succeeded")
+	actual, ok := result.(string)
+	if !ok || actual != "module succeeded" {
+		t.Errorf("expected result to be 'module succeded', got '%v'", result)
+	}
+	if status != neat.ModuleChanged {
+		t.Errorf("expected status to be %s, got %s", neat.ModuleChanged, status)
+	}
+	if err != nil {
+		t.Error(err)
+	}
+}
+
 func TestModuleE_Fail(t *testing.T) {
 	registry := &neat.ModuleRegistry{}
 	registry.Register("mock", &MockFactory{})

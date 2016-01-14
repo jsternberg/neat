@@ -1,6 +1,10 @@
 package neat
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/mitchellh/mapstructure"
+)
 
 type ModuleStatus int
 
@@ -54,15 +58,42 @@ type Module interface {
 	Execute(p *Playbook) (interface{}, ModuleStatus, error)
 }
 
+func decodeArgs(v interface{}, args ...interface{}) error {
+	for _, arg := range args {
+		switch arg := arg.(type) {
+		case map[string]interface{}:
+			if err := mapstructure.Decode(arg, v); err != nil {
+				return err
+			}
+		default:
+			return fmt.Errorf("invalid argument: %v", arg)
+		}
+	}
+	return nil
+}
+
 // ModuleE is a convenience struct for methods commonly used when writing
 // modules. It is designed as a wrapper around the module interface.
 // It is short for ModuleExecutor.
 type ModuleE struct {
 	Module
+	Changed bool
+}
+
+// Ok signals that the module has been completed. It will return the
+// result passed into the function and the ModuleOk status. If Changed
+// has been modified to be true before calling this function, this
+// will return ModuleChanged instead.
+func (m *ModuleE) Ok(v interface{}) (interface{}, ModuleStatus, error) {
+	status := ModuleOk
+	if m.Changed {
+		status = ModuleChanged
+	}
+	return v, status, nil
 }
 
 // Fail is a convenience function for returning a module failure.
 // It returns nothing as the result interface,
-func (m ModuleE) Fail(v interface{}) (interface{}, ModuleStatus, error) {
+func (m *ModuleE) Fail(v interface{}) (interface{}, ModuleStatus, error) {
 	return nil, ModuleFailed, fmt.Errorf("%v", v)
 }
