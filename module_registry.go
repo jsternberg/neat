@@ -1,9 +1,6 @@
 package neat
 
-import (
-	"errors"
-	"fmt"
-)
+import "fmt"
 
 // ModuleRegistry keeps a lookup table to access registered ModuleFactory's by
 // name.
@@ -48,20 +45,8 @@ func unimplemented(name string) ModuleFunc {
 
 // DefaultRegistry is a global default registry for convenience.
 var DefaultRegistry = &ModuleRegistry{
-	"execute": ModuleFunc(func(args ...interface{}) (Module, error) {
-		m := &executeModule{}
-		if err := decodeArgs(m, args...); err != nil {
-			return nil, err
-		}
-
-		if m.Command == "" {
-			return nil, errors.New("command required")
-		}
-		return m, nil
-	}),
-	"file": wrapModuleFunc(func() Module {
-		return &fileModule{}
-	}),
+	"execute": ModuleFunc(Execute),
+	"file":    ModuleFunc(File),
 	"template": wrapModuleFunc(func() Module {
 		return &templateModule{}
 	}),

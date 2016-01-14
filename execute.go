@@ -2,8 +2,21 @@ package neat
 
 import (
 	"bytes"
+	"errors"
 	"os/exec"
 )
+
+func Execute(args ...interface{}) (Module, error) {
+	m := &executeModule{}
+	if err := decodeArgs(m, args...); err != nil {
+		return nil, err
+	}
+
+	if m.Command == "" {
+		return nil, errors.New("command required")
+	}
+	return m, nil
+}
 
 type executeModule struct {
 	Command string
