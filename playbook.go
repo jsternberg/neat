@@ -25,6 +25,16 @@ func (p *Playbook) Add(m Module) {
 	p.modules = append(p.modules, m)
 }
 
+// SetSafe changes if the playbook is being run in safe mode.
+func (p *Playbook) SetSafe(safe bool) {
+	p.safe = safe
+}
+
+// Safe returns if this playbook is in safe mode.
+func (p *Playbook) Safe() bool {
+	return p.safe
+}
+
 // Play runs the playbook.
 func (p *Playbook) Play() (Stats, error) {
 	stats := Stats{}

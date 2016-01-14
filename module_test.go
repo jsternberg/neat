@@ -14,7 +14,9 @@ func (*MockFactory) New(args ...interface{}) (neat.Module, error) {
 
 type Mock struct{}
 
-func (*Mock) Execute() error { return nil }
+func (*Mock) Execute(p *neat.Playbook) (interface{}, neat.ModuleStatus, error) {
+	return nil, neat.ModuleOk, nil
+}
 
 func TestModuleFactory_Create(t *testing.T) {
 	registry := &neat.ModuleRegistry{}
@@ -79,5 +81,22 @@ func TestModuleFactory_ModuleFunc(t *testing.T) {
 	_, err := mf.New()
 	if err != nil {
 		t.Fatalf("unable to lookup mock module")
+	}
+}
+
+func TestModuleE_Fail(t *testing.T) {
+	registry := &neat.ModuleRegistry{}
+	registry.Register("mock", &MockFactory{})
+
+	m := neat.ModuleE{Module: registry.MustCreate("mock")}
+	result, status, err := m.Fail("module failed to run")
+	if result != nil {
+		t.Errorf("expected result to be nil, got %v", result)
+	}
+	if status != neat.ModuleFailed {
+		t.Errorf("expected status to be %s, got %s", neat.ModuleFailed, status)
+	}
+	if err == nil || err.Error() != "module failed to run" {
+		t.Errorf("expected error to be 'module failed to run', got '%s'", err)
 	}
 }
