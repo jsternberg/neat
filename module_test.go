@@ -103,3 +103,23 @@ func TestModuleE_Fail(t *testing.T) {
 		t.Errorf("expected error to be 'module failed to run', got '%s'", err)
 	}
 }
+
+func TestModuleStatus_String(t *testing.T) {
+	tests := []struct {
+		Expected string
+		Status   neat.ModuleStatus
+	}{
+		{Expected: "ok", Status: neat.ModuleOk},
+		{Expected: "changed", Status: neat.ModuleChanged},
+		{Expected: "deferred", Status: neat.ModuleDeferred},
+		{Expected: "skipped", Status: neat.ModuleSkipped},
+		{Expected: "failed", Status: neat.ModuleFailed},
+	}
+
+	for _, test := range tests {
+		actual := test.Status.String()
+		if actual != test.Expected {
+			t.Errorf("expected '%s', got '%s'", test.Expected, actual)
+		}
+	}
+}

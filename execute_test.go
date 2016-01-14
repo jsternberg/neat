@@ -9,7 +9,7 @@ import (
 	"github.com/jsternberg/neat"
 )
 
-func TestModule_File_Create(t *testing.T) {
+func TestModule_Execute_Create(t *testing.T) {
 	tmpdir, err := ioutil.TempDir(os.TempDir(), "neat-test")
 	if err != nil {
 		t.Fatal(err)
@@ -17,10 +17,8 @@ func TestModule_File_Create(t *testing.T) {
 	defer os.RemoveAll(tmpdir)
 
 	filepath := fmt.Sprintf("%s/test.txt", tmpdir)
-	m, err := neat.CreateModule("file", map[string]interface{}{
-		"path":  filepath,
-		"mode":  0644,
-		"state": "present",
+	m, err := neat.CreateModule("execute", map[string]interface{}{
+		"command": fmt.Sprintf("touch %s", filepath),
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -32,13 +30,11 @@ func TestModule_File_Create(t *testing.T) {
 		t.Fatal(err)
 	}
 	if status != neat.ModuleChanged {
-		t.Fatalf("expected status changed, got %s", status)
+		t.Fatalf("execute status changed, got %s", status)
 	}
 
-	stat, err := os.Stat(filepath)
+	_, err = os.Stat(filepath)
 	if err != nil {
 		t.Fatal(err)
-	} else if stat.Mode() != 0644 {
-		t.Errorf("expected file to be mode 0644, got %v", stat.Mode())
 	}
 }

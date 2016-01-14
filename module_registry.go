@@ -45,17 +45,28 @@ func unimplemented(name string) ModuleFunc {
 
 // DefaultRegistry is a global default registry for convenience.
 var DefaultRegistry = &ModuleRegistry{
-	"command": unimplemented("command"),
-	"file": ModuleFunc(func(args ...interface{}) (Module, error) {
-		m := &fileModule{}
+	"execute": wrapModuleFunc(func() Module {
+		return &executeModule{}
+	}),
+	"file": wrapModuleFunc(func() Module {
+		return &fileModule{}
+	}),
+	"template": wrapModuleFunc(func() Module {
+		return &templateModule{}
+	}),
+	"service": wrapModuleFunc(func() Module {
+		return &serviceModule{}
+	}),
+}
+
+func wrapModuleFunc(f func() Module) ModuleFunc {
+	return ModuleFunc(func(args ...interface{}) (Module, error) {
+		m := f()
 		if err := decodeArgs(m, args...); err != nil {
 			return nil, err
 		}
 		return m, nil
-	}),
-	"template": unimplemented("template"),
-	"service":  unimplemented("service"),
-	"shell":    unimplemented("shell"),
+	})
 }
 
 // CreateModule calls Create on the DefaultRegistry.

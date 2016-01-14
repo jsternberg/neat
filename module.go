@@ -31,6 +31,23 @@ const (
 	ModuleFailed
 )
 
+func (s ModuleStatus) String() string {
+	switch s {
+	case ModuleOk:
+		return "ok"
+	case ModuleChanged:
+		return "changed"
+	case ModuleDeferred:
+		return "deferred"
+	case ModuleSkipped:
+		return "skipped"
+	case ModuleFailed:
+		return "failed"
+	default:
+		return "unknown"
+	}
+}
+
 // ModuleFactory will create a module from the arguments passed into this function.
 // If the arguments were wrong or incomplete for some reason, an error will be
 // returned to indicate that the Module could not be instantiated.
