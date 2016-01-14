@@ -59,7 +59,7 @@ func TestPlaybook_Play_SingleModule(t *testing.T) {
 	test := &PlaybookTest{
 		T: t,
 		Modules: []neat.Module{
-			r.MustCreate("mock"),
+			r.MustCreate("mock", neat.ModuleOk),
 		},
 		Expected: neat.Stats{
 			Ok:       1,
@@ -78,7 +78,8 @@ func TestPlaybook_Play_MultiModule(t *testing.T) {
 	test := &PlaybookTest{
 		T: t,
 		Modules: []neat.Module{
-			r.MustCreate("mock"),
+			r.MustCreate("mock", neat.ModuleOk),
+			r.MustCreate("mock", neat.ModuleOk),
 		},
 		Expected: neat.Stats{
 			Ok:       2,
@@ -97,7 +98,7 @@ func TestPlaybook_Play_Noop(t *testing.T) {
 	test := &PlaybookTest{
 		T: t,
 		Modules: []neat.Module{
-			r.MustCreate("mock"),
+			r.MustCreate("mock", neat.ModuleOk),
 		},
 		Expected: neat.Stats{
 			Ok:       1,
@@ -116,7 +117,7 @@ func TestPlaybook_Play_SkippedModule(t *testing.T) {
 	test := &PlaybookTest{
 		T: t,
 		Modules: []neat.Module{
-			r.MustCreate("mock"),
+			r.MustCreate("mock", neat.ModuleSkipped),
 		},
 		Expected: neat.Stats{
 			Ok:       0,
@@ -135,7 +136,7 @@ func TestPlaybook_Play_DeferredModule(t *testing.T) {
 	test := &PlaybookTest{
 		T: t,
 		Modules: []neat.Module{
-			r.MustCreate("mock"),
+			r.MustCreate("mock", neat.ModuleDeferred),
 		},
 		Expected: neat.Stats{
 			Ok:       0,

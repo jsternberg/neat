@@ -9,12 +9,29 @@ import (
 type MockFactory struct{}
 
 func (*MockFactory) New(args ...interface{}) (neat.Module, error) {
-	return &Mock{}, nil
+	var v interface{}
+	if len(args) >= 1 {
+		v = args[0]
+	}
+	return &Mock{v}, nil
 }
 
-type Mock struct{}
+type Mock struct {
+	v interface{}
+}
 
-func (*Mock) Execute(p *neat.Playbook) (interface{}, neat.ModuleStatus, error) {
+func (m *Mock) Execute(p *neat.Playbook) (interface{}, neat.ModuleStatus, error) {
+	if m.v != nil {
+		switch v := m.v.(type) {
+		case error:
+			me := neat.ModuleE{Module: m}
+			return me.Fail(v.Error())
+		case neat.ModuleStatus:
+			return nil, v, nil
+		default:
+			panic(v)
+		}
+	}
 	return nil, neat.ModuleOk, nil
 }
 

@@ -1,6 +1,9 @@
 package neat
 
-import "errors"
+import (
+	"errors"
+	"fmt"
+)
 
 var (
 	errPlaybookEmpty = errors.New("playbook empty")
@@ -40,6 +43,14 @@ func (p *Playbook) Play() (Stats, error) {
 	stats := Stats{}
 	if len(p.modules) == 0 {
 		return stats, errPlaybookEmpty
+	}
+
+	for _, m := range p.modules {
+		_, status, err := m.Execute(p)
+		if err != nil {
+			return stats, fmt.Errorf("playbook execution error: %s", err)
+		}
+		stats.Record(status)
 	}
 	return stats, nil
 }
