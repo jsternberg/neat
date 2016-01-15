@@ -11,8 +11,9 @@ var (
 
 // Playbook keeps the underlying plan and execution order.
 type Playbook struct {
-	modules []Module
-	safe    bool
+	modules   []Module
+	safe      bool
+	checkMode bool
 }
 
 // NewPlaybook creates a new playbook. The playbook defaults to running
@@ -36,6 +37,16 @@ func (p *Playbook) SetSafe(safe bool) {
 // Safe returns if this playbook is in safe mode.
 func (p *Playbook) Safe() bool {
 	return p.safe
+}
+
+// SetCheckMode changes if the playbook is being run in check mode.
+func (p *Playbook) SetCheckMode(checkMode bool) {
+	p.checkMode = checkMode
+}
+
+// CheckMode returns if this playbook is being run in check mode.
+func (p *Playbook) CheckMode() bool {
+	return p.checkMode
 }
 
 // Play runs the playbook.

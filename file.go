@@ -34,19 +34,22 @@ type fileModule struct {
 func (m *fileModule) Execute(p *Playbook) (interface{}, ModuleStatus, error) {
 	switch m.State {
 	case "present":
-		return m.ensurePresent()
+		return m.ensurePresent(p)
 	case "absent":
-		return m.ensureAbsent()
+		return m.ensureAbsent(p)
 	default:
 		panic(fmt.Sprintf("unknown state: %s", m.State))
 	}
 }
 
-func (m *fileModule) ensurePresent() (interface{}, ModuleStatus, error) {
+func (m *fileModule) ensurePresent(p *Playbook) (interface{}, ModuleStatus, error) {
 	e := ModuleE{Module: m}
 	f, err := os.Open(m.Path)
 	if err != nil {
 		e.Changed = true
+		if p.CheckMode() {
+			return e.Ok(nil)
+		}
 		f, err = os.Create(m.Path)
 		if err != nil {
 			return e.Fail(err)
@@ -61,6 +64,9 @@ func (m *fileModule) ensurePresent() (interface{}, ModuleStatus, error) {
 
 	if stat.Mode() != m.Mode {
 		e.Changed = true
+		if p.CheckMode() {
+			return e.Ok(nil)
+		}
 		if err := f.Chmod(m.Mode); err != nil {
 			return e.Fail(err)
 		}
@@ -68,7 +74,7 @@ func (m *fileModule) ensurePresent() (interface{}, ModuleStatus, error) {
 	return e.Ok(nil)
 }
 
-func (m *fileModule) ensureAbsent() (interface{}, ModuleStatus, error) {
+func (m *fileModule) ensureAbsent(p *Playbook) (interface{}, ModuleStatus, error) {
 	e := ModuleE{Module: m}
 	_, err := os.Stat(m.Path)
 	if err != nil {
@@ -79,6 +85,9 @@ func (m *fileModule) ensureAbsent() (interface{}, ModuleStatus, error) {
 	}
 
 	e.Changed = true
+	if p.CheckMode() {
+		return e.Ok(nil)
+	}
 	if err := os.Remove(m.Path); err != nil {
 		e.Fail(err)
 	}
