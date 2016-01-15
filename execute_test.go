@@ -38,3 +38,27 @@ func TestModule_Execute_Create(t *testing.T) {
 		t.Fatal(err)
 	}
 }
+
+func TestModule_Execute_Create_WrongArgs(t *testing.T) {
+	_, err := neat.CreateModule("execute")
+	if err == nil {
+		t.Fatal("expected an error, got nil")
+	}
+}
+
+func TestModule_Execute_FailedCommand(t *testing.T) {
+	m, err := neat.CreateModule("execute", map[string]interface{}{
+		"command": "false",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	playbook := neat.NewPlaybook()
+	_, status, err := m.Execute(playbook)
+	if err == nil {
+		t.Fatal("expected an error, got nil")
+	} else if status != neat.ModuleFailed {
+		t.Fatalf("expected status failed, got %s", status)
+	}
+}

@@ -114,6 +114,7 @@ func TestModuleStatus_String(t *testing.T) {
 		{Expected: "deferred", Status: neat.ModuleDeferred},
 		{Expected: "skipped", Status: neat.ModuleSkipped},
 		{Expected: "failed", Status: neat.ModuleFailed},
+		{Expected: "unknown", Status: -1},
 	}
 
 	for _, test := range tests {
